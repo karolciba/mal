@@ -1,0 +1,54 @@
+import reader
+import printer
+import mtypes
+
+repl_env = {
+        '+': lambda a,b: mtypes.IntType(a._value+b._value),
+        '-': lambda a,b: mtypes.IntType(a._value-b._value),
+        '*': lambda a,b: mtypes.IntType(a._value*b._value),
+        '/': lambda a,b: mtypes.IntType(a._value//b._value),
+        }
+
+def f_read(data):
+    return reader.read_str(data)
+
+def f_eval(ast,env):
+    if type(ast) != mtypes.ListType:
+        return f_eval_ast(ast, env)
+
+    if len(ast._data) == 0:
+        return ast
+
+    ev_list = f_eval_ast(ast, env)
+    op = ev_list._data[0]
+    return op(*ev_list._data[1:])
+
+
+def f_print(exp):
+    return printer.pr_str(exp) + "\n"
+
+def f_rep(str):
+    return f_print(f_eval(f_read(str),repl_env))
+
+def f_eval_ast(ast,env):
+    if type(ast) == mtypes.AtomType:
+        # return env['+']
+        return env[ast._value]
+
+    if type(ast) == mtypes.ListType:
+        nlist = mtypes.ListType()
+        for el in ast._data:
+            nlist.append(f_eval(el,env))
+        return nlist
+
+    return ast
+
+import sys
+
+
+print("user> ", end='', flush=True)
+
+for line in sys.stdin:
+    print(f_rep(line), end='')
+    print("user> ", end='', flush=True)
+
