@@ -1,18 +1,17 @@
 import reader
 import printer
 import mtypes
+import menv
 
-repl_env = {
-        '+': lambda a,b: mtypes.IntType(a._value+b._value),
-        '-': lambda a,b: mtypes.IntType(a._value-b._value),
-        '*': lambda a,b: mtypes.IntType(a._value*b._value),
-        '/': lambda a,b: mtypes.IntType(a._value//b._value),
-        }
+from utils import debug
+
+repl_env = menv.get_base_env()
 
 def f_read(data):
     return reader.read_str(data)
 
 def f_eval(ast,env):
+    debug("f_eval {}".format(repr(ast)))
     if type(ast) != mtypes.ListType:
         return f_eval_ast(ast, env)
 
@@ -31,9 +30,9 @@ def f_rep(str):
     return f_print(f_eval(f_read(str),repl_env))
 
 def f_eval_ast(ast,env):
+    debug("f_eval_ast {}".format(repr(ast)))
     if type(ast) == mtypes.AtomType:
-        # return env['+']
-        return env[ast._value]
+        return env.get(ast)
 
     if type(ast) == mtypes.ListType:
         nlist = mtypes.ListType()
@@ -49,6 +48,9 @@ import sys
 print("user> ", end='', flush=True)
 
 for line in sys.stdin:
-    print(f_rep(line), end='')
+    try:
+        print(f_rep(line), end='')
+    except Exception as e:
+        print(e)
     print("user> ", end='', flush=True)
 
