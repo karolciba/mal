@@ -15,12 +15,12 @@ def f_eval(ast,env):
     if type(ast) != mtypes.ListType:
         return f_eval_ast(ast, env)
 
-    if len(ast._data) == 0:
+    if len(ast.data) == 0:
         return ast
 
     ev_list = f_eval_ast(ast, env)
-    op = ev_list._data[0]
-    return op(*ev_list._data[1:])
+    op = ev_list.data[0]
+    return op(*ev_list.data[1:])
 
 
 def f_print(exp):
@@ -36,7 +36,7 @@ def f_eval_ast(ast,env):
 
     if type(ast) == mtypes.ListType:
         nlist = mtypes.ListType()
-        for el in ast._data:
+        for el in ast.data:
             nlist.append(f_eval(el,env))
         return nlist
 
