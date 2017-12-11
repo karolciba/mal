@@ -87,6 +87,12 @@ class Reader(object):
             return mul_atom
         elif n == '/':
             return div_atom
+        elif n == 'true':
+            return true_atom
+        elif n == 'false':
+            return false_atom
+        elif n == 'nil':
+            return nil_atom
         else:
             SYMBOLS[n] = True
             debug("returning atom {}".format(n))

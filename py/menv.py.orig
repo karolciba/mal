@@ -1,0 +1,47 @@
+import mtypes
+
+class Env(object):
+    def __init__(self, outer = None):
+        self.outer = outer
+        self.data = {}
+        self.data['def!'] = lambda k,v: self.define(k,v)
+
+    def set(self, key, value):
+        self.data[key] = value
+
+    def define(self,k,v):
+        print("Env#define({},{})".format(k,v))
+        self.set(k,v)
+        return v
+
+    def find(self, key):
+        val = self.data.get(key)
+
+        if self.outer and not val:
+            val = self.outer.find(val)
+
+        if not val:
+            val = mtypes.NilType()
+
+        return val
+
+    def get(self, key):
+        val = self.find(key)
+
+        if val:
+            return val
+
+        raise Exception("'{}' not found".format(key))
+
+repl_env = {
+        '+': lambda a,b: mtypes.IntType(a._value+b._value),
+        '-': lambda a,b: mtypes.IntType(a._value-b._value),
+        '*': lambda a,b: mtypes.IntType(a._value*b._value),
+        '/': lambda a,b: mtypes.IntType(a._value//b._value),
+        }
+
+def base_env():
+    env = Env()
+    for key, value in repl_env.items():
+        env.set(key, value)
+    return env

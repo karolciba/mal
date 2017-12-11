@@ -2,10 +2,18 @@ import mtypes
 from utils import debug
 
 class Env(object):
-    def __init__(self, outer = None):
-        debug("Env#__init__({})".format(repr(outer)))
+    def __init__(self, outer = None, binds = None, exprs = None):
+        debug("Env#__init__({}, binds={}, exprs={})".format(repr(outer), repr(binds), repr(exprs)))
         self.data = {}
         self.outer = outer
+        if not binds:
+            binds = mtypes.ListType()
+        if not exprs:
+            exprs = mtypes.ListType()
+
+        pairs = zip(binds.data, exprs.data)
+        for p in pairs:
+            self.set(p[0],p[1])
 
     def set(self, key, value):
         debug("Env#set({},{})".format(repr(key),repr(value)))
@@ -40,4 +48,5 @@ def get_base_env():
     env.set(mtypes.min_atom, appl(operator.sub))
     env.set(mtypes.mul_atom, appl(operator.mul))
     env.set(mtypes.div_atom, appl(operator.floordiv))
+    env.set(mtypes.true_atom, mtypes.true_atom)
     return env

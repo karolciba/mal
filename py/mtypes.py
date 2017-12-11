@@ -1,3 +1,4 @@
+import menv
 from utils import debug
 
 class MalType(object):
@@ -5,6 +6,14 @@ class MalType(object):
         pass
     def __str__(self):
         return "[base]"
+
+class FunctionType(MalType):
+    def __init__(self, env, binds, exprs):
+        self.binds = binds
+        self.exprs = exprs
+        self.env = env
+    def __str__(self):
+        return "#function"
 
 class AtomType(MalType):
     def __init__(self, value):
@@ -27,6 +36,8 @@ class ListType(MalType):
         if not data:
             data = []
         self.data = data
+        # TODO: remove after refactoring in eval
+        self.value = None
     def append(self, typ):
         self.data.append(typ)
     def __str__(self):
@@ -44,9 +55,15 @@ class ListType(MalType):
         # debug("ListType#cdr {}".format(repr(self.data)))
         return ListType(self.data[1:])
 
-def NilType():
-    return ListType()
+class NilType(ListType):
+    def __str__(self):
+        return "nil"
+    def __repr__(self):
+        return "<NilType>"
 
+nil_atom = NilType()
+true_atom = AtomType('t')
+false_atom = ListType()
 pls_atom = AtomType('+')
 min_atom = AtomType('-')
 mul_atom = AtomType('*')

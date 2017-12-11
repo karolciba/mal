@@ -1,0 +1,60 @@
+import reader
+import printer
+import mtypes
+import menv
+
+repl_env = menv.base_env()
+
+DEBUG = False
+
+def f_read(data):
+    return reader.read_str(data)
+
+def f_eval(ast,env):
+    DEBUG and print("DEBUG f_eval {}".format(ast))
+    if type(ast) != mtypes.ListType:
+        return f_eval_ast(ast, env)
+
+    if len(ast._data) == 0:
+        return ast
+
+    ev_list = f_eval_ast(ast, env)
+    op = ev_list._data[0]
+
+    return op(*ev_list._data[1:])
+
+
+def f_print(exp):
+    return printer.pr_str(exp) + "\n"
+
+def f_rep(str):
+    return f_print(f_eval(f_read(str),repl_env))
+
+def f_eval_ast(ast,env):
+    if type(ast) == mtypes.AtomType:
+        DEBUG and print("DEBUG f_eval_ast atom {}".format(ast))
+        return env.get(ast)
+
+    if type(ast) == mtypes.ListType:
+        DEBUG and print("DEBUG f_eval_ast list {}".format(ast))
+        nlist = mtypes.ListType()
+        for el in ast._data:
+            nlist.append(f_eval(el,env))
+        return nlist
+
+    return ast
+
+import sys
+
+
+if __name__ == "__main__":
+    print("user> ", end='', flush=True)
+
+    for line in sys.stdin:
+        try:
+            print(f_rep(line), end='')
+        except Exception as e:
+            print(e)
+            raise e
+        print("user> ", end='', flush=True)
+
